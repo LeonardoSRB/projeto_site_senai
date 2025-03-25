@@ -1,144 +1,125 @@
 import React, { useState, useEffect } from "react";
-import './styles.css'
-import { AwardIcon } from "lucide-react";
+import { FaEdit, FaTrash, FaPlus, FaSearch } from 'react-icons/fa'
+import Head from "../../components/head";
+import Footer from "../../components/footer";
+import { useNavigate } from 'react-router-dom'
 import axios from "axios";
+import './styles.css'
 
-const ModalDisciplinas = ({
-    isOpen,
-    onClose,
-    disciplinaSelecionada,
-    setSetar,
-    setar
-}) => {
-    if (!isOpen) return null
-
-    console.log("Disc Select: ", disciplinaSelecionada)
-
-    const [id, setId] = useState(disciplinaSelecionada?.id || "")
-    const [cod, setCod] = useState(disciplinaSelecionada?.cod || "")
-    const [nome, setNome] = useState(disciplinaSelecionada?.nome || "")
-    const [aulas, setAulas] = useState(disciplinaSelecionada?.aulas || "")
+export default function Disciplina() {
+    const [dados, setDados] = useState([])
     const token = localStorage.getItem('token')
+    const [modalOpen, setModalOpen] = useState(false)
+    const [disciplinaSelecionada, setDisciplinaSelecionada] = useState(null)
+    const [setar, setSetar] = useState(false)
+
+    // console.log("Token Home: ", token)
 
     useEffect(() => {
-        if (disciplinaSelecionada) {
-            setId(disciplinaSelecionada.id)
-            setCod(disciplinaSelecionada.cod || '')
-            setNome(disciplinaSelecionada.nome || '')
-            setAulas(disciplinaSelecionada.aulas || '')
+        if (!token) return;
 
-        } else {
-            setId('')
-            setCod('')
-            setNome('')
-            setAulas('')
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:8000/api/disc',
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                )
+                console.log(response.data)
+                setDados(response.data)
 
+            } catch (error) {
+                console.error(error)
+            }
         }
-    }, [])
+        fetchData()
+    }, [setar])
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        const novaDisciplina = { codigo, nome, aulas }
-        if (disciplinaSelecionada) {
-            atualizar({ ...disciplinaSelecionada})
-        } else {
-            criar(novaDisciplina)
-        }
+    const editar = (disciplina) => {
+        console.log(disciplina)
+        setDisciplinaSelecionada(disciplina)
+        setModalOpen(true)
     }
 
-    const newDisciplina = async () => {
-        try {
-            await axios.post('http://127.0.0.1:8000/api/disciplina',
-                {
-                    cod: cod,
-                    nome: nome,
-                    aulas: aulas,
-                }, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+
+    const deleteDisciplina = async (disciplina) => {
+        if (window.confirm("Tem certeza?")) {
+            try {
+                await axios.delete(`http://127.0.0.1:8000/api/disciplina/${disciplina.id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                )
+                console.log("Dados apagados com sucesso...")
+                setSetar(!setar)
+            } catch (error) {
+                console.error(error)
             }
-            )
-            console.log("Dados inseridos com sucesso...")
-            setSetar(!setar)
-            onClose(false)
-        } catch (error) {
-
-        }
-    }
-
-    const editDisciplina = async () => {
-        try {
-            await axios.put(`http://127.0.0.1:8000/api/disciplina/${disciplinaSelecionada.id}`,
-                {
-                    cod: cod,
-                    nome: nome,
-                    aulas: aulas,
-
-                }, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
-            )
-            console.log("Dados atualizados com sucesso...")
-            setSetar(!setar)
-            onClose(false)
-        } catch (error) {
-
         }
     }
 
     return (
-        <div className="container_container">
+        <div className="container_disciplina">
+            <Head />
+            <section className="section-disciplina">
+                <div className="table-disciplina">
+                    <h2>Lista de disciplinas</h2>
+                    {dados.map((disciplina) => (
+                        <div className="lista">
+                            <div className="col1">
+                                <FaEdit className="edit" onClick={() => editar(disciplina)} />
+                            </div>
+                            <div className="col2">
+                                <FaTrash className="delete" onClick={() => deleteDisciplina(disciplina)} />
+                            </div>
+                            <div className="col3">
+                                <span className="id">{disciplina.id}</span>
+                            </div>
+                            <div className="col4">
+                                <span className="cod">{disciplina.cod}</span>
+                            </div>
+                            <div className="col5">
+                                <span className="disc">{disciplina.disc}</span>
+                            </div>
+                            <div className="col6">
+                                <span className="aulas">{disciplina.aulas}</span>
+                            </div>
+                        </div>
+                    ))
 
-            <div className="container_modal">
-                <div className="head_modal">
-                    <button className="close_button" onClick={onClose}>X</button>
+                    }
                 </div>
-                <div className="body_modal">
-                    <div className="caixa1">
-                        <h2>{disciplinaSelecionada ? "Editar" : "Cadastrar"}</h2>
-                        <form onSubmit={handleSubmit}>
-                            <input
-                                className="cod_modal"
-                                placeholder="código"
-                                type="text"
-                                value={cod}
-                                onChange={(e) => setCod(e.target.value)}
-                            />
-                            <input
-                                className="nome_modal"
-                                placeholder="Nome"
-                                type="text"
-                                value={nome}
-                                onChange={(e) => setNome(e.target.value)}
-                            />
-                            <input
-                                className="aulas_modal"
-                                placeholder="aulas"
-                                type="text"
-                                value={aulas}
-                                onChange={(e) => setAulas(e.target.value)}
-                            />
-                        </form>
+                <div className="footer_table">
+                    <div className="btn1">
+                        <FaPlus
+                            className="adicionar"
+                            onClick={() => {
+                                setDisciplinaSelecionada(null),
+                                    setModalOpen(true)
+                            }}
+                        />
                     </div>
-                    <div className="caixa2">
-                        <h1>Foto</h1>
+                    <div className="pesquisar">
+                        <input placeholder="ID" />
+                    </div>
+                    <div className="btn2">
+                        <FaSearch className="procurar" />
                     </div>
                 </div>
-                <div className="footer_modal">
-                    <button
-                        type="submit"
-                        onClick={disciplinaSelecionada ? editDisciplina : newDisciplina}
-                    >
-                        {professorSelecionado ? "Atualizar" : "Salvar"}
-                    </button>
-                </div>
-            </div>
+
+                <ModalDisciplinas
+                    isOpen={modalOpen}
+                    onClose={() => setModalOpen(false)}
+                    disciplinaSelecionada={disciplinaSelecionada}
+                    setSetar={setSetar}
+                    setar={setar}
+                />
+            </section>
+            <Footer />
         </div>
     )
-
 }
-
-export default ModalDisciplinas
