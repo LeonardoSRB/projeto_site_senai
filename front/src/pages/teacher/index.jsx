@@ -4,7 +4,7 @@ import ModalProfessores from "../../components/modals/teachers";
 import Head from "../../components/head";
 import Footer from "../../components/footer";
 import axios from "axios";
-import './styles.css'
+import './styles.css';
 
 export default function Teacher() {
     const [dados, setDados] = useState([])

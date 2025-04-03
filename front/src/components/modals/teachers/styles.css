@@ -52,10 +52,22 @@
     padding: 20px;
 }
 
-.caixa2{
+.image1{
     display: flex;
-    background-color: rgb(104, 189, 155);
-    width: 70%;
+    background-color: rgb(18, 22, 216);
+    width: 200px;
+    height: 300px;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+}
+
+.image2{
+    display: flex;
+    position: fixed;
+    width: 180px;
+    height: 190px;
+    background-color: brown;
     align-items: center;
     justify-content: center;
 }
@@ -76,4 +88,19 @@
 .close_button:hover{
     background-color: black;
     color: aliceblue;
+}
+
+.fileInput{
+    display: flex;
+    left: 50px;
+    top: 30px;
+    position: fixed;
+    color: transparent;
+}
+
+.button_save{
+    width: 100px;
+    left: 45vw;
+    position: fixed;
+    align-self: center;
 }
